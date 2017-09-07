@@ -1,3 +1,3 @@
 # AndroidRepository
-# They are my codes on Android Studio.
-# They are sinple applications.
+  They are my codes on Android Studio.
+  They are sinple applications.
