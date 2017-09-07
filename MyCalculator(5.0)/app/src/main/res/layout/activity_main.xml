@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.lanlan.administrator.my_calculator.MainActivity">
+
+    <TextView
+        android:maxLines="1"
+        android:ellipsize="start"
+        android:background="@drawable/output"
+        android:id="@+id/outPut1"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:textColor="#ff33cc"
+        android:textSize="30sp"
+        />
+    <TextView
+        android:ellipsize="start"
+        android:background="@drawable/output"
+        android:id="@+id/outPut"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:textColor="#0099cc"
+        android:hint=" 0"
+        android:maxLines="1"
+        android:textSize="30sp" />
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:layout_margin="6dp"
+            android:id="@+id/but_1"
+            android:background="@drawable/button"
+            android:layout_width="40dp"
+            android:layout_weight="1"
+            android:textSize="30sp"
+            android:layout_height="60dp"
+            android:text="1" />
+
+        <Button
+            android:id="@+id/but_2"
+            android:textSize="30sp"
+            android:layout_margin="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:layout_width="40dp"
+            android:layout_height="60dp"
+            android:text="2" />
+
+        <Button
+            android:id="@+id/but_3"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:layout_width="40dp"
+            android:layout_margin="6dp"
+            android:layout_height="60dp"
+            android:text="3" />
+
+        <Button
+            android:id="@+id/but_mul"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/function"
+            android:layout_width="40dp"
+            android:layout_height="60dp"
+            android:text="x" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/but_4"
+            android:layout_weight="1"
+            android:textSize="30sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/button"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:text="4" />
+
+        <Button
+            android:id="@+id/but_5"
+            android:textSize="30sp"
+            android:layout_margin="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:text="5" />
+
+        <Button
+            android:id="@+id/but_6"
+            android:textSize="30sp"
+            android:layout_margin="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:text="6" />
+
+        <Button
+            android:id="@+id/but_div"
+            android:layout_width="50dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/function"
+            android:text="÷"
+            android:textSize="30sp" />
+
+    </TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/but_7"
+            android:layout_margin="6dp"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:text="7" />
+
+        <Button
+            android:id="@+id/but_8"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/button"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:text="8" />
+
+        <Button
+            android:layout_margin="6dp"
+            android:id="@+id/but_9"
+            android:layout_width="50dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:background="@drawable/button"
+            android:text="9"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/but_sub"
+            android:layout_margin="6dp"
+            android:textSize="30sp"
+            android:background="@drawable/function"
+            android:layout_width="50dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:text="-" />
+
+    </TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/but_cls"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/function"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:text="cls" />
+
+        <Button
+            android:id="@+id/but_0"
+            android:textSize="30sp"
+            android:layout_weight="1"
+            android:layout_margin="6dp"
+            android:background="@drawable/button"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:text="0" />
+
+        <Button
+            android:id="@+id/but_del"
+            android:textSize="30sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/function"
+            android:layout_width="50dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:text="del" />
+
+        <Button
+            android:id="@+id/but_add"
+            android:textSize="30sp"
+            android:layout_margin="6dp"
+            android:background="@drawable/function"
+            android:layout_width="50dp"
+            android:layout_weight="1"
+            android:layout_height="70dp"
+            android:text="+" />
+
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/but_lef"
+            android:layout_margin="6dp"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:text="("
+            android:textSize="30sp" />
+        <Button
+            android:id="@+id/but_rig"
+            android:layout_margin="6dp"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:text=")"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/but_point"
+            android:layout_margin="6dp"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:text="."
+            android:textSize="30sp" />
+
+        <Button
+
+            android:id="@+id/but_equ"
+            android:layout_width="50dp"
+            android:layout_height="70dp"
+            android:layout_margin="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/function"
+            android:text="="
+            android:textSize="30sp" />
+    </TableRow>
+</TableLayout>
