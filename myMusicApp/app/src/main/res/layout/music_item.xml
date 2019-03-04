@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/index"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:text="2"
+        android:textSize="20sp" />
+
+
+    <TextView
+        android:id="@+id/music_name"
+        android:layout_toRightOf="@+id/index"
+        android:layout_width="215dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="打上花火"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/singer"
+        android:layout_toRightOf="@+id/index"
+        android:layout_below="@+id/music_name"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="米金红石"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/total_time"
+        android:layout_width="45dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="@string/init_time"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_toEndOf="@+id/music_name"
+        android:layout_toRightOf="@+id/music_name"/>
+
+    <ImageView
+        android:id="@+id/detail"
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:focusable="true"
+        android:clickable="true"
+        android:longClickable="true"
+        android:scaleType="centerInside"
+        android:src="@drawable/music_detail"
+        android:layout_marginStart="15dp"
+        android:layout_marginLeft="15dp"
+        android:layout_toRightOf="@+id/total_time"
+        android:layout_toEndOf="@+id/total_time"/>
+
+
+</RelativeLayout>
