@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">faceYou</string>
+    <string name="title_face_recog">识别</string>
+    <string name="title_setting">设置</string>
+    <string name="title_activity_add_face">addFaceActivity</string>
+    <string name="add_face">添加小伙伴</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_preView">预览</string>
+    <string name="recog">识别人脸</string>
+    <string name="setting">添加人脸</string>
+    <string name="add">添加照片</string>
+
+</resources>

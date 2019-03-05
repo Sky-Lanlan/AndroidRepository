@@ -32,8 +32,7 @@ public class MusicItem {
         this.duration = duration;
         this.size = size;
         this.url = url;
-//        this.lrcTitle = lrcTitle;
-//        this.lrcSize = lrcSize;
+
     }
 
     public long getId() {
@@ -72,13 +71,7 @@ public class MusicItem {
         return url;
     }
 
-//    public String getLrcTitle() {
-//        return lrcTitle;
-//    }
-//
-//    public String getLrcSize() {
-//        return lrcSize;
-//    }
+
 
     public void setId(long id) {
         this.id = id;
@@ -116,13 +109,7 @@ public class MusicItem {
         this.url = url;
     }
 
-//    public void setLrcTitle(String lrcTitle) {
-//        this.lrcTitle = lrcTitle;
-//    }
-//
-//    public void setLrcSize(String lrcSize) {
-//        this.lrcSize = lrcSize;
-//    }
+
 }
 
 
