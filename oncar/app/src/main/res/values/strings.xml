@@ -1,6 +1,0 @@
-<resources>
-    <string name="app_name">on-car</string>
-    <string name="title_recog_face">识别人脸</string>
-    <string name="title_setting">设置</string>
-
-</resources>

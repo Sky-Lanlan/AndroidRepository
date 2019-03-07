@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#33d"
+    android:background="#D1EEEE"
     tools:context=".MainActivity">
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -13,15 +13,22 @@
         android:layout_gravity="center">
         <Button
             android:id="@+id/face_rec"
-            android:layout_width="wrap_content"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:text="@string/recog"/>
         <Button
-            android:id="@+id/setting"
+            android:id="@+id/add_face"
             android:layout_below="@+id/face_rec"
-            android:layout_width="wrap_content"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
-            android:text="@string/setting"/>
+            android:text="@string/add_face"/>
+        <Button
+            android:id="@+id/face_res"
+            android:layout_below="@+id/add_face"
+            android:layout_width="140dp"
+            android:layout_height="wrap_content"
+            android:text="@string/face_res"/>
+
 
     </RelativeLayout>
 
