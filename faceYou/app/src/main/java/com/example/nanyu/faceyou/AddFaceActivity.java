@@ -1,8 +1,10 @@
 package com.example.nanyu.faceyou;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,20 +23,42 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.bytedeco.javacpp.presets.opencv_core;
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.objdetect.CascadeClassifier;
 
 public class AddFaceActivity extends AppCompatActivity implements View.OnClickListener {
+
+
 
     public static final int TAKE_PHOTO = 1;
     public static final int CHOOSE_PHOTO = 2;
@@ -44,10 +68,20 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     private Button take_photo;
     private Button choose;
     private Button submit;
+    private Button rotate;
+    private EditText face_name;
     private ImageView picture;
     private Uri imageUri;
     private Bitmap faceTemp = null;
     private String nameTemp;
+    private Mat grayscaleImage;
+    private Mat aInputImage;
+    private int absoluteFaceSize;
+
+    private CascadeClassifier cascadeClassifier;
+
+
+    private static final String PATH = "/sdcard/faceYou/faceRepertory/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +94,14 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         take_photo = findViewById(R.id.take_photo);
         choose = findViewById(R.id.choose);
         submit = findViewById(R.id.submit);
+        rotate = findViewById(R.id.rotateBu);
         picture = findViewById(R.id.new_face);
+        face_name = findViewById(R.id.face_name);
 
         take_photo.setOnClickListener(this);
         choose.setOnClickListener(this);
         submit.setOnClickListener(this);
+        rotate.setOnClickListener(this);
         Toast.makeText(this, "create", Toast.LENGTH_SHORT).show();
 
     }
@@ -100,6 +137,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.choose:
+                faceTemp = null;
                 if (ContextCompat.checkSelfPermission(AddFaceActivity.this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
                         PackageManager.PERMISSION_GRANTED){
@@ -111,6 +149,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
 
                 break;
             case R.id.take_photo:
+                // 清除保存的图片
+                faceTemp = null;
                 //　创建File对象,用于存储拍照后的图片
                 File outputImage = new File(getExternalCacheDir(),
                         "output_image.jpg");
@@ -135,9 +175,46 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.submit:
                 //　提交人像
-//                uploadFace();
+                uploadFace(((BitmapDrawable)picture.getDrawable()).getBitmap(),
+                        face_name.getText().toString());
+            case R.id.rotateBu:
+                //旋转图像
+
             default:
         }
+    }
+
+    private Boolean uploadFace(Bitmap row_face, String name) {
+
+        newDirectory(PATH,name);
+
+
+        grayscaleImage = new Mat(row_face.getHeight(), row_face.getHeight(), CvType.CV_8UC4);
+        absoluteFaceSize = (int) (row_face.getHeight() * 0.2);
+        aInputImage = new Mat(row_face.getHeight(), row_face.getHeight(), CvType.CV_8UC4);
+        Utils.bitmapToMat(row_face,aInputImage);
+        Imgproc.cvtColor(aInputImage, grayscaleImage, Imgproc.COLOR_RGBA2RGB);
+
+
+        MatOfRect faces = new MatOfRect();
+
+        // Use the classifier to detect faces
+        if (cascadeClassifier != null) {
+            cascadeClassifier.detectMultiScale(grayscaleImage, faces, 1.1, 2, 2, new Size(absoluteFaceSize, absoluteFaceSize), new Size());
+        }
+        Rect[] facesArray = faces.toArray();
+
+        // If there are any faces found, draw a rectangle around it
+
+        if (facesArray.length==0){
+            Toast.makeText(this,"请竖屏拍摄,或者讲人脸竖立",Toast.LENGTH_SHORT).show();
+            return false;
+        }else {
+            saveImage(aInputImage, facesArray[0], name);
+            Imgproc.rectangle(aInputImage, facesArray[0].tl(), facesArray[0].br(), new Scalar(0, 255, 0, 255), 3);
+        }
+
+        return true;
     }
 
     private void openAlbum() {
@@ -258,6 +335,107 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         displayImage(imagePath);//根据图片路径显示图片
 
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!OpenCVLoader.initDebug()) {
+            Log.e("log_wons", "OpenCV init error");
+        }
+        initializeOpenCVDependencies();
+    }
+
+
+    /**
+     * 创建新文件夹
+     *
+     * @param _path  根目录
+     * @param dirName　　要创建的目录
+     */
+    public Boolean newDirectory(String _path, String dirName) {
+        File file = new File(_path  + dirName);
+        try {
+            if (!file.exists()) {
+                if(!file.mkdir()){
+                    return false;
+                }else {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return false;
+    }
+
+    /**
+     * 特征保存
+     *
+     * @param image    mat
+     * @param rect     人脸信息
+     * @param name 　人名
+     * @return
+     */
+    public boolean saveImage(Mat image, Rect rect, String name) {
+        try {
+
+
+            File rootFile = new File(PATH+name+"/");
+            File[] files = rootFile.listFiles();
+
+            // 把检测到的人脸重新定义大小后保存成文件
+            Mat sub = image.submat(rect);
+            Mat mat = new Mat();
+            Size size = new Size(100, 100);
+            Imgproc.resize(sub, mat, size);
+            Imgcodecs.imwrite(PATH+name+"/"+files.length+".jpg", mat);
+
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+
+    }
+
+    private void initializeOpenCVDependencies() {
+
+
+        try {
+            InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+            File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+            File mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+            FileOutputStream os = new FileOutputStream(mCascadeFile);
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                os.write(buffer, 0, bytesRead);
+            }
+            is.close();
+            os.close();
+            cascadeClassifier = new CascadeClassifier(mCascadeFile.getAbsolutePath());
+        } catch (Exception e) {
+            Log.e("OpenCVActivity", "Error loading cascade", e);
+        }
+
+    }
+
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS:
+                    initializeOpenCVDependencies();
+                    break;
+                default:
+                    super.onManagerConnected(status);
+                    break;
+            }
+        }
+    };
 
 
 }

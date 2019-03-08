@@ -62,8 +62,8 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
     private Mat grayscaleImage;
     private int absoluteFaceSize;
     CvFont name;
-    @SuppressLint("SdCardPath") String rootPath = "/sdcard/";
-    private String PATH = rootPath+"FaceDetect/";
+
+    private static final String PATH = "/sdcard/faceYou/FaceDetect/";
 
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -112,15 +112,12 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
         getSupportActionBar().hide();
 
 
-        newDirectory(rootPath,"/FaceDetect/");
 
         Toast.makeText(this, "请使用横屏，以便识别", Toast.LENGTH_LONG).show();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         openCvCameraView = new JavaCameraView(this, 1);
         setContentView(openCvCameraView);
         openCvCameraView.setCvCameraViewListener(this);
-
-
 
 
 //        cvInitFont(name,CV_FONT_HERSHEY_COMPLEX,1.0,1.0,0,2,8);
@@ -131,7 +128,6 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
     @Override
     public void onCameraViewStarted(int width, int height) {
         grayscaleImage = new Mat(height, width, CvType.CV_8UC4);
-
         absoluteFaceSize = (int) (height * 0.2);
     }
 
@@ -161,7 +157,7 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
             saveImage(aInputFrame, facesArray[i], "first");
             Imgproc.rectangle(aInputFrame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 3);
         }
-//        getImage("first");
+
 
         return aInputFrame;
     }
@@ -251,28 +247,7 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
         return cvCompareHist(Histogram1, Histogram2, CV_COMP_CORREL);
     }
 
-    /**
-     * 创建新文件夹
-     *
-     * @param _path  根目录
-     * @param dirName　　要创建的目录
-     */
-    public Boolean newDirectory(String _path, String dirName) {
-        File file = new File(_path  + dirName);
-        try {
-            if (!file.exists()) {
-                if(!file.mkdir()){
-                    return false;
-                }else {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
 
-        }
-        return false;
-    }
 
 
 }

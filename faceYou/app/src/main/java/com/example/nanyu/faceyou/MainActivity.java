@@ -1,6 +1,7 @@
 package com.example.nanyu.faceyou;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -12,11 +13,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button faceRec;
-    private Button add_face;
+    protected Button faceRec;
+    protected Button add_face;
+    @SuppressLint("SdCardPath") String rootPath = "/sdcard/";
+    protected String home = "faceYou/";
+
+    protected String faceDetect = "faceDetect/";
+    protected String faceRepertory = "faceRepertory/";
+
 
 
 
@@ -66,6 +75,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
 
+        //创建必要的文件夹
+        newDirectory(rootPath, home);
+        newDirectory(rootPath+home,faceDetect);
+        newDirectory(rootPath+home, faceRepertory);
+
 
     }
 
@@ -91,5 +105,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    /**
+     * 创建新文件夹
+     *
+     * @param _path  根目录
+     * @param dirName　　要创建的目录
+     */
+    public Boolean newDirectory(String _path, String dirName) {
+        File file = new File(_path  + dirName);
+        try {
+            if (!file.exists()) {
+                if(!file.mkdir()){
+                    return false;
+                }else {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return false;
     }
 }
