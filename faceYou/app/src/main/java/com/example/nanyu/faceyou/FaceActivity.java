@@ -3,6 +3,7 @@ package com.example.nanyu.faceyou;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -23,14 +24,16 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.JavaCameraView;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.HighGui;
+
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 import org.bytedeco.javacv.*;
@@ -42,15 +45,19 @@ import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgproc.*;
 import static org.bytedeco.javacpp.opencv_calib3d.*;
 import static org.bytedeco.javacpp.opencv_objdetect.*;
+
 import org.opencv.imgcodecs.Imgcodecs;
 
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
-import static org.opencv.imgcodecs.Imgcodecs.CV_LOAD_IMAGE_GRAYSCALE;
+//import static org.opencv.imgcodecs.Imgcodecs.;
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 import static org.opencv.imgproc.Imgproc.CV_COMP_CORREL;
 
@@ -61,9 +68,11 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
     private CascadeClassifier cascadeClassifier;
     private Mat grayscaleImage;
     private int absoluteFaceSize;
+    private HashMap<String, Integer> faceMap;
     CvFont name;
 
     private static final String PATH = "/sdcard/faceYou/FaceDetect/";
+    private static final String PATHREPER = "/sdcard/faceYou/faceRepertory/";
 
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -86,7 +95,7 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
         try {
             InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
             File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
-            File mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
+            File mCascadeFile = new File(cascadeDir, "haarcascade_frontalface_alt.xml");
             FileOutputStream os = new FileOutputStream(mCascadeFile);
             byte[] buffer = new byte[4096];
             int bytesRead;
@@ -109,9 +118,10 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_face);
+
         getSupportActionBar().hide();
 
-
+        faceMap = readPicture();
 
         Toast.makeText(this, "请使用横屏，以便识别", Toast.LENGTH_LONG).show();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -152,10 +162,48 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
         }
         Rect[] facesArray = faces.toArray();
 
+
+        Double confidenceResult = 0.0;
+        String predictName = "";
         // If there are any faces found, draw a rectangle around it
         for (int i = 0; i < facesArray.length; i++) {
-            saveImage(aInputFrame, facesArray[i], "first");
+            Double maxConfidence = 0.0;
+
+//            saveImage(aInputFrame, facesArray[i], "newFace");
+            // 获取新的人脸
+
+            saveImage(aInputFrame, facesArray[0], "newFace");
+
+
+            for (String name : faceMap.keySet()) {
+
+                double maxConfidenceEachPerson = 0;
+                int number = faceMap.get(name);
+                for (int j = 0; j < number; j++) {
+
+                    String pathOld = name + "/" + j;
+                    String pathNew = "newFace";
+
+
+                    double tmp = cmpPic(pathNew, pathOld);
+                    // 找出最大的置信度
+                    maxConfidenceEachPerson = maxConfidenceEachPerson < tmp ? tmp : maxConfidenceEachPerson;
+                }
+                if (maxConfidenceEachPerson > maxConfidence) {
+                    confidenceResult = maxConfidenceEachPerson;
+                    predictName = name;
+                }
+
+
+            }
+
+
             Imgproc.rectangle(aInputFrame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 3);
+
+            // 暂未解决中文显示不了的问题
+            Imgproc.putText(aInputFrame, predictName + ":" + confidenceResult, new Point(facesArray[i].x, facesArray[i].y - 3), FONT_HERSHEY_SCRIPT_COMPLEX, 4, new Scalar(0, 255, 255), 2);
+
+
         }
 
 
@@ -187,7 +235,8 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
             Mat mat = new Mat();
             Size size = new Size(100, 100);
             Imgproc.resize(sub, mat, size);
-            Imgcodecs.imwrite(PATH+fileName+".jpg", mat);
+
+            Imgcodecs.imwrite(PATH + fileName + ".jpg", mat);
 
 
             return true;
@@ -207,36 +256,65 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
      */
     public Bitmap getImage(String fileName) {
         try {
-            return BitmapFactory.decodeFile(Environment.getExternalStorageDirectory() + "/FaceDetect/" + fileName + ".jpg");
+            return BitmapFactory.decodeFile(PATHREPER + fileName + ".jpg");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
+    /**
+     * 读取手机人脸仓库
+     *
+     * @return 人名:图片数量
+     */
+
+    public HashMap<String, Integer> readPicture() {
+
+        HashMap<String, Integer> faceMap = new HashMap<>();
+        //　获取人名文件夹
+        File nameFile = new File(PATHREPER);
+        File[] nameFiles = nameFile.listFiles();
+        for (File file : nameFiles) {
+            String face_name;
+            String count;
+            face_name = file.getAbsolutePath().split("/")[4];
+            //　获取人脸图片
+            File[] faceFiles = new File(file.getAbsolutePath()).listFiles();
+            faceMap.put(face_name, faceFiles.length);
+        }
+        return faceMap;
+    }
+
 
     /**
      * 特征对比
      *
-     * @param file1 人脸特征
-     * @param file2 人脸特征
+     * @param newFace 相机检测人脸特征 人名/i
+     * @param oldFace 已保存人脸特征   人名/i
      * @return 相似度
      */
-    public double CmpPic(String file1, String file2) {
+    public double cmpPic(String newFace, String oldFace) {
         int l_bins = 20;
         int hist_size[] = {l_bins};
 
         float v_ranges[] = {0, 100};
         float ranges[][] = {v_ranges};
 
-        opencv_core.IplImage Image1 = cvLoadImage(Environment.getExternalStorageDirectory() + "/FaceDetect/" + file1 + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
-        opencv_core.IplImage Image2 = cvLoadImage(Environment.getExternalStorageDirectory() + "/FaceDetect/" + file2 + ".jpg", CV_LOAD_IMAGE_GRAYSCALE);
+
+        CvHistogram Histogram1 = CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
+        CvHistogram Histogram2 = CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
+
+
+//        String c = Environment.getExternalStorageDirectory()+ oldFace + ".jpg";
+//        opencv_core.IplImage Image2 = cvLoadImage(c, CV_LOAD_IMAGE_GRAYSCALE);
+//        cvLoadImage(Environment.getExternalStorageDirectory().getAbsolutePath(),CV_LOAD_IMAGE_GRAYSCALE);
+        opencv_core.IplImage Image2 = cvLoadImage(PATHREPER + oldFace + ".jpg", 0);
+        opencv_core.IplImage Image1 = cvLoadImage(PATH + newFace + ".jpg", 0);
 
         opencv_core.IplImage imageArr1[] = {Image1};
         opencv_core.IplImage imageArr2[] = {Image2};
 
-        CvHistogram Histogram1 = CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
-        CvHistogram Histogram2 = CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
 
         cvCalcHist(imageArr1, Histogram1, 0, null);
         cvCalcHist(imageArr2, Histogram2, 0, null);
@@ -246,8 +324,6 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
 
         return cvCompareHist(Histogram1, Histogram2, CV_COMP_CORREL);
     }
-
-
 
 
 }

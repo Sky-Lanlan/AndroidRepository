@@ -19,7 +19,8 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     protected Button faceRec;
-    protected Button add_face;
+    protected Button addFace;
+    protected Button faceRes;
     @SuppressLint("SdCardPath") String rootPath = "/sdcard/";
     protected String home = "faceYou/";
 
@@ -53,11 +54,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         faceRec = findViewById(R.id.face_rec);
-        add_face = findViewById(R.id.add_face);
+        addFace = findViewById(R.id.add_face);
+        faceRes = findViewById(R.id.face_res);
 
 
         faceRec.setOnClickListener(this);
-        add_face.setOnClickListener(this);
+        addFace.setOnClickListener(this);
+        faceRes.setOnClickListener(this);
+
 
 
         if (ContextCompat.checkSelfPermission(
@@ -100,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.face_res:
                 Intent intent3 = new Intent(MainActivity.this, FaceResActivity.class);
                 startActivity(intent3);
-
 
             default:
                 break;

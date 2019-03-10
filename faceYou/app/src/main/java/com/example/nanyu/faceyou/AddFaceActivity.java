@@ -175,10 +175,27 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.submit:
                 //　提交人像
-                uploadFace(((BitmapDrawable)picture.getDrawable()).getBitmap(),
-                        face_name.getText().toString());
+
+                //　截取人像部分
+                Bitmap bitmap = ((BitmapDrawable)picture.getDrawable()).getBitmap();
+
+                if (uploadFace(FaceHelper.genFaceBitmap(bitmap),
+                        face_name.getText().toString())){
+                    Toast.makeText(this,"提交成功",Toast.LENGTH_SHORT).show();
+                }
+                break;
             case R.id.rotateBu:
                 //旋转图像
+
+                Bitmap origin = ((BitmapDrawable)picture.getDrawable()).getBitmap();
+                int width = origin.getWidth();
+                int height = origin.getHeight();
+                Matrix matrix = new Matrix();
+                // 围绕原地进行旋转
+                matrix.setRotate(90);
+                Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
+                picture.setImageBitmap(newBM);
+                break;
 
             default:
         }
@@ -207,7 +224,7 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
         // If there are any faces found, draw a rectangle around it
 
         if (facesArray.length==0){
-            Toast.makeText(this,"请竖屏拍摄,或者讲人脸竖立",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"提交失败，请一定将人脸保持竖立",Toast.LENGTH_SHORT).show();
             return false;
         }else {
             saveImage(aInputImage, facesArray[0], name);
@@ -252,8 +269,8 @@ public class AddFaceActivity extends AppCompatActivity implements View.OnClickLi
                         int width = origin.getWidth();
                         int height = origin.getHeight();
                         Matrix matrix = new Matrix();
-                        matrix.setRotate(-90);
                         // 围绕原地进行旋转
+                        matrix.setRotate(-90);
                         Bitmap newBM = Bitmap.createBitmap(origin, 0, 0, width, height, matrix, false);
                         picture.setImageBitmap(newBM);
                     } catch (FileNotFoundException e) {

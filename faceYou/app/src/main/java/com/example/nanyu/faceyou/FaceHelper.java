@@ -75,6 +75,7 @@ public final class FaceHelper {
         }
 
         final PointF p = new PointF();
+        float eyesDistance = faces[0].eyesDistance();
         faces[0].getMidPoint(p);
         if (DEBUG_ENABLE) {
             Log.i(LOG_TAG,
@@ -91,20 +92,37 @@ public final class FaceHelper {
 
         // compute an area that face in middle of it.
         int startX, startY, width, height;
-        if (faceX <= cacheWidth - faceX) {
-            startX = 0;
-            width = faceX * 2;
-        } else {
-            startX = faceX - (cacheWidth - faceX);
-            width = (cacheWidth - faceX) * 2;
+
+        width = (int) (6 * eyesDistance);
+        height = (int) (7 * eyesDistance);
+
+        startX = faceX - (int) (width * 0.3);
+        startY = faceY - (int) (height * 0.3);
+        startX = startX <= 0 ? 0 : startX;
+        startY = startY <= 0 ? 0 : startY;
+        if (startX + width > cacheWidth) {
+            width = cacheWidth - startX;
         }
-        if (faceY <= cacheHeight - faceY) {
-            startY = 0;
-            height = faceY * 2;
-        } else {
-            startY = faceY - (cacheHeight - faceY);
-            height = (cacheHeight - faceY) * 2;
+        if (startY + height > cacheHeight) {
+            height = cacheHeight - startY;
         }
+
+
+//        if (faceX <= cacheWidth - faceX) {
+//            startX = 0;
+//            width = faceX * 2;
+//        } else {
+//            startX = faceX - (cacheWidth - faceX);
+//            width = (cacheWidth - faceX) * 2;
+//        }
+//        if (faceY <= cacheHeight - faceY) {
+//            startY = 0;
+//            height = faceY * 2;
+//        } else {
+//
+//            startY = faceY - (cacheHeight - faceY);
+//            height = (cacheHeight - faceY) * 2;
+//        }
 
         final Bitmap result = Bitmap.createBitmap(cacheBitmap, startX, startY,
                 width, height);

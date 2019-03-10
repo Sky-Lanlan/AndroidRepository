@@ -16,6 +16,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions{
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/opencv/pom.properties'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/opencv/pom.xml'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/ffmpeg/pom.properties'
+        pickFirst  'META-INF/maven/org.bytedeco.javacpp-presets/ffmpeg/pom.xml'
+
+    }
 }
 
 dependencies {
@@ -28,8 +37,10 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':openCVLibrary345')
+    implementation files('libs/javacv-bin/ffmpeg-android-arm.jar')
+    implementation files('libs/javacv-bin/ffmpeg.jar')
     implementation files('libs/javacv-bin/javacpp.jar')
     implementation files('libs/javacv-bin/javacv.jar')
-    implementation files('libs/javacv-bin/ffmpeg.jar')
+    implementation files('libs/javacv-bin/opencv-android-arm.jar')
     implementation files('libs/javacv-bin/opencv.jar')
 }
