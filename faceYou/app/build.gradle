@@ -41,6 +41,12 @@ dependencies {
     implementation files('libs/javacv-bin/ffmpeg.jar')
     implementation files('libs/javacv-bin/javacpp.jar')
     implementation files('libs/javacv-bin/javacv.jar')
-    implementation files('libs/javacv-bin/opencv-android-arm.jar')
     implementation files('libs/javacv-bin/opencv.jar')
+    implementation files('libs/javacv-bin/ffmpeg-android-arm64.jar')
+    implementation files('libs/javacv-bin/ffmpeg-android-x86.jar')
+    implementation files('libs/javacv-bin/ffmpeg-android-x86_64.jar')
+    implementation files('libs/javacv-bin/opencv-android-arm.jar')
+    implementation files('libs/javacv-bin/opencv-android-arm64.jar')
+    implementation files('libs/javacv-bin/opencv-android-x86.jar')
+    implementation files('libs/javacv-bin/opencv-android-x86_64.jar')
 }

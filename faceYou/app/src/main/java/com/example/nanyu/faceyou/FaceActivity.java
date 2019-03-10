@@ -41,6 +41,7 @@ import org.bytedeco.javacpp.*;
 import org.bytedeco.javacpp.indexer.*;
 
 import static org.bytedeco.javacpp.opencv_core.*;
+import static org.bytedeco.javacpp.opencv_imgcodecs.CV_LOAD_IMAGE_GRAYSCALE;
 import static org.bytedeco.javacpp.opencv_imgcodecs.cvLoadImage;
 import static org.bytedeco.javacpp.opencv_imgproc.*;
 import static org.bytedeco.javacpp.opencv_calib3d.*;
@@ -58,6 +59,8 @@ import java.util.List;
 
 
 //import static org.opencv.imgcodecs.Imgcodecs.;
+import static org.opencv.imgcodecs.Imgcodecs.IMREAD_GRAYSCALE;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
 import static org.opencv.imgcodecs.Imgcodecs.imwrite;
 import static org.opencv.imgproc.Imgproc.CV_COMP_CORREL;
 
@@ -80,7 +83,7 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS:
-                    initializeOpenCVDependencies();
+                    openCvCameraView.enableView();
                     break;
                 default:
                     super.onManagerConnected(status);
@@ -110,7 +113,8 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
         }
 
         // And we are ready to go
-        openCvCameraView.enableView();
+        mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+//
     }
 
 
@@ -172,7 +176,10 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
 //            saveImage(aInputFrame, facesArray[i], "newFace");
             // 获取新的人脸
 
-            saveImage(aInputFrame, facesArray[0], "newFace");
+//            saveImage(aInputFrame, facesArray[0], "newFace");
+
+            Bitmap newFace = Bitmap.createBitmap(aInputFrame.cols(), aInputFrame.rows(), Bitmap.Config.ARGB_8888);
+            org.opencv.android.Utils.matToBitmap(aInputFrame, newFace);
 
 
             for (String name : faceMap.keySet()) {
@@ -182,10 +189,10 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
                 for (int j = 0; j < number; j++) {
 
                     String pathOld = name + "/" + j;
-                    String pathNew = "newFace";
 
 
-                    double tmp = cmpPic(pathNew, pathOld);
+
+                    double tmp = cmpPic(newFace, pathOld);
                     // 找出最大的置信度
                     maxConfidenceEachPerson = maxConfidenceEachPerson < tmp ? tmp : maxConfidenceEachPerson;
                 }
@@ -201,7 +208,7 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
             Imgproc.rectangle(aInputFrame, facesArray[i].tl(), facesArray[i].br(), new Scalar(0, 255, 0, 255), 3);
 
             // 暂未解决中文显示不了的问题
-            Imgproc.putText(aInputFrame, predictName + ":" + confidenceResult, new Point(facesArray[i].x, facesArray[i].y - 3), FONT_HERSHEY_SCRIPT_COMPLEX, 4, new Scalar(0, 255, 255), 2);
+            Imgproc.putText(aInputFrame, predictName + ":" + confidenceResult, new Point(facesArray[i].x, facesArray[i].y - 3), FONT_HERSHEY_SIMPLEX, 4, new Scalar(0, 255, 255), 2);
 
 
         }
@@ -294,7 +301,7 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
      * @param oldFace 已保存人脸特征   人名/i
      * @return 相似度
      */
-    public double cmpPic(String newFace, String oldFace) {
+    public double cmpPic(Bitmap newFace, String oldFace) {
         int l_bins = 20;
         int hist_size[] = {l_bins};
 
@@ -302,18 +309,32 @@ public class FaceActivity extends AppCompatActivity implements CameraBridgeViewB
         float ranges[][] = {v_ranges};
 
 
-        CvHistogram Histogram1 = CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
-        CvHistogram Histogram2 = CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1);
+        CvHistogram Histogram1;
+        CvHistogram Histogram2;
+
+        Histogram1 = new CvHistogram(CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1));
+        Histogram2 = new CvHistogram(CvHistogram.create(1, hist_size, CV_HIST_ARRAY, ranges, 1));
 
 
 //        String c = Environment.getExternalStorageDirectory()+ oldFace + ".jpg";
 //        opencv_core.IplImage Image2 = cvLoadImage(c, CV_LOAD_IMAGE_GRAYSCALE);
 //        cvLoadImage(Environment.getExternalStorageDirectory().getAbsolutePath(),CV_LOAD_IMAGE_GRAYSCALE);
-        opencv_core.IplImage Image2 = cvLoadImage(PATHREPER + oldFace + ".jpg", 0);
-        opencv_core.IplImage Image1 = cvLoadImage(PATH + newFace + ".jpg", 0);
 
-        opencv_core.IplImage imageArr1[] = {Image1};
-        opencv_core.IplImage imageArr2[] = {Image2};
+
+        Mat oldFaceMat = imread(PATHREPER + oldFace + ".jpg",IMREAD_GRAYSCALE);
+
+        Bitmap bitmap = Bitmap.createBitmap(oldFaceMat.cols(), oldFaceMat.rows(), Bitmap.Config.ARGB_8888);
+        org.opencv.android.Utils.matToBitmap(oldFaceMat, bitmap);
+
+
+        opencv_core.IplImage Image1 = IplImage.create(newFace.getWidth(), newFace.getHeight(), IPL_DEPTH_8U, 1);
+        opencv_core.IplImage Image2 = IplImage.create(bitmap.getWidth(), bitmap.getHeight(), IPL_DEPTH_8U, 1);
+
+//        Image2 = new IplImage(cvLoadImage(PATHREPER + oldFace + ".jpg", CV_LOAD_IMAGE_GRAYSCALE));
+//        Image1 = new IplImage(cvLoadImage(PATH + newFace + ".jpg", CV_LOAD_IMAGE_GRAYSCALE));
+
+        IplImage imageArr1[] = {Image1};
+        IplImage imageArr2[] = {Image2};
 
 
         cvCalcHist(imageArr1, Histogram1, 0, null);
